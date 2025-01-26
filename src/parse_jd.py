@@ -1,48 +1,22 @@
-from sentence_transformers import SentenceTransformer, util
-import pandas as pd
-from src.parse_jd import parse_job_description
-from src.preprocess_resume import preprocess_resumes
-from src.recc import recommend_top_candidates
-from src.score import calculate_scores
+from src.skill_extraction import extract_skills_from_job_description2
+import re
 
-model = SentenceTransformer('all-mpnet-base-v2') 
-
-def ai_agent_pipeline(resume_data, job_description, top_n=1):
+def parse_job_description(job_description):
     """
-    Executes the entire AI Agent pipeline with dynamic skill matching.
+    Extracts required skills and experience from the job description.
     """
-    # Step 1: Parse Job Description and Extract Skills
-    jd_details = parse_job_description(job_description)
-    jd_skills = jd_details["skills"]
-    
-    # Step 2: Preprocess Data Dynamically Based on JD Skills
-    resumes = preprocess_resumes(resume_data, jd_skills)
-    
-    # Step 3: Generate Embeddings
-    resume_texts = [resume["text"] for resume in resumes]
-    resume_embeddings = model.encode(resume_texts, convert_to_tensor=True)
-    jd_embedding = model.encode([jd_details["text"]], convert_to_tensor=True)
-    
-    # Step 4: Match & Score
-    scores = calculate_scores(resume_embeddings, jd_embedding, resumes, jd_details)
-    
-    # Step 5: Recommend Candidates
-    top_candidates = recommend_top_candidates(resumes, scores, top_n=top_n)
-    return top_candidates
+    jd_skills = extract_skills_from_job_description2(job_description)
+    print(jd_skills)
+    experience_pattern = r"(\d+)\s*(?:years|yrs)\s*experience"
+    experience = int(re.findall(experience_pattern, job_description)[0]) if re.search(experience_pattern, job_description) else 0
+    return {
+        "text": job_description,
+        "skills": jd_skills,
+        "experience": experience
+    }
 
-# Updated Resume Data as DataFrame
-data = pd.DataFrame({
-    "Category": ["Data Science", "Data Science", "Data Science", "Data Science"],
-    "Resume": [
-        "Skills Python, Machine Learning, SQL. 5 years experience.",
-        "Skills Python, R, Deep Learning. 3 years experience.",
-        "Skills Tableau, SQL, AI. 2 years experience.",
-        "Skills SAP HANA, Python. 1 year experience."
-    ]
-})
-
-# Sample Job Description
-job_description = """
+if __name__ == "__main__":
+    jd = """
     **Job Title:** Machine Learning Engineer  
     **Location:** [Location] (Remote options available)  
     **Job Type:** Full-Time
@@ -82,9 +56,6 @@ job_description = """
     - Flexible work hours and remote work options
     - Collaborative and innovative work environment"""
 
-# Run the Updated Pipeline
-top_candidates = ai_agent_pipeline(data, job_description, top_n=2)
+    res = parse_job_description(jd)
+    print(res)
 
-# Display Recommendations
-for idx, (candidate, score) in enumerate(top_candidates, start=1):
-    print(f"Rank {idx}:\nResume: {candidate['text']}\nSkills: {candidate['skills']}\nExperience: {candidate['experience']} years\nScore: {score:.2f}\n")
