@@ -4,27 +4,18 @@ import pandas as pd
 import PyPDF2
 
 def extract_experience_and_skills(resume_text, jd_skills):
-    """
-    Extracts experience and skills from resume text using regex.
-    """
-    # Regex for experience in years (e.g., "5 years experience" or "2 yrs experience")
     experience_years_pattern = r"(\d+)\s*(?:years|yrs)\s*experience"
 
-    # Regex for date ranges (e.g., "Jan 2020 to Dec 2022" or "2019 to present")
     date_range_pattern = r"(\b\w+\s+\d{4})\s+to\s+(\b\w+\s+\d{4}|\bPresent\b|\bcurrent\b)"
     
-    # Extracting skills
     skills = {word.strip().lower() for word in resume_text.split() if word.strip().lower() in jd_skills}
     
-    # Extracting experience in years
     experience_years = sum(map(int, re.findall(experience_years_pattern, resume_text)))
 
-    # Extracting experience from date ranges
     total_experience_years = 0
     date_ranges = re.findall(date_range_pattern, resume_text, re.IGNORECASE)
     for start_date, end_date in date_ranges:
         try:
-            # Parse the years from start and end dates
             start_year = int(re.search(r"\d{4}", start_date).group())
             if end_date.lower() in ["present", "current"]:
                 end_year = 2025  # Assume the current year

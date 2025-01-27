@@ -1,4 +1,4 @@
-from skill_extraction import extract_skills_from_job_description2
+from src.skill_extraction import extract_skills_from_job_description2
 import re
 
 def parse_job_description(job_description):

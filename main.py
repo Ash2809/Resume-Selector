@@ -7,25 +7,41 @@ from src.score import calculate_scores
 
 model = SentenceTransformer('all-mpnet-base-v2') 
 
+# def ai_agent_pipeline(resume_data, job_description, top_n=1):
+#     jd_details = parse_job_description(job_description)
+#     jd_skills = jd_details["skills"]
+    
+#     resumes = preprocess_resumes(resume_data, jd_skills)
+    
+#     resume_texts = resumes['text'].tolist()
+#     resume_embeddings = model.encode(resume_texts, convert_to_tensor=True)
+#     jd_embedding = model.encode([jd_details["text"]], convert_to_tensor=True)
+    
+#     scores = calculate_scores(resume_embeddings, jd_embedding, resumes, jd_details)
+    
+#     top_candidates = recommend_top_candidates(resumes, scores, top_n=top_n)
+#     return top_candidates, jd_details
+
 def ai_agent_pipeline(resume_data, job_description, top_n=1):
     jd_details = parse_job_description(job_description)
     jd_skills = jd_details["skills"]
     
     resumes = preprocess_resumes(resume_data, jd_skills)
     
-    resume_texts = [resume["text"] for resume in resumes]
+    resume_texts = resumes['text'].tolist()
+    
     resume_embeddings = model.encode(resume_texts, convert_to_tensor=True)
     jd_embedding = model.encode([jd_details["text"]], convert_to_tensor=True)
     
     scores = calculate_scores(resume_embeddings, jd_embedding, resumes, jd_details)
     
     top_candidates = recommend_top_candidates(resumes, scores, top_n=top_n)
+    
     return top_candidates, jd_details
 
+
 def generate_explanation(candidate, job_description, jd_details):
-    """
-    Generates an explanation of why a candidate is the best match for the job.
-    """
+
     matched_skills = set(candidate['skills']) & set(jd_details['skills'])
     unmatched_skills = set(jd_details['skills']) - set(candidate['skills'])
     
@@ -48,15 +64,17 @@ def generate_explanation(candidate, job_description, jd_details):
     return explanation
 
 if __name__ == "__main__":
-    data = pd.DataFrame({
-        "Category": ["Data Science", "Data Science", "Data Science", "Data Science"],
-        "Resume": [
-            "Skills Python, Machine Learning, SQL. 5 years experience.",
-            "Skills Python, R, Deep Learning. 3 years experience.",
-            "Skills Tableau, SQL, AI. 2 years experience.",
-            "Skills SAP HANA, Python. 1 year experience."
-        ]
-    })
+    # data = pd.DataFrame({
+    #     "Category": ["Data Science", "Data Science", "Data Science", "Data Science"],
+    #     "Resume": [
+    #         "Skills Python, Machine Learning, SQL. 5 years experience.",
+    #         "Skills Python, R, Deep Learning. 3 years experience.",
+    #         "Skills Tableau, SQL, AI. 2 years experience.",
+    #         "Skills SAP HANA, Python. 1 year experience."
+    #     ]
+    # })
+
+    data = pd.read_csv(r"C:\Projects\Resume-Selector\data\UpdatedResumeDataSet.csv")
 
     job_description = "Looking for a Data Scientist with skills: Python, Machine Learning, SQL. Minimum 3 years of experience required."
 
