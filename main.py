@@ -4,6 +4,7 @@ from src.parse_jd import parse_job_description
 from src.preprocess_resume import preprocess_resumes
 from src.recc import recommend_top_candidates
 from src.score import calculate_scores
+from src.PDF_parser import preprocess_resumes_from_folder
 
 model = SentenceTransformer('all-mpnet-base-v2') 
 
@@ -22,11 +23,15 @@ model = SentenceTransformer('all-mpnet-base-v2')
 #     top_candidates = recommend_top_candidates(resumes, scores, top_n=top_n)
 #     return top_candidates, jd_details
 
-def ai_agent_pipeline(resume_data, job_description, top_n=1):
+def ai_agent_pipeline(resume_data, job_description, top_n, is_PDF):
     jd_details = parse_job_description(job_description)
     jd_skills = jd_details["skills"]
     
-    resumes = preprocess_resumes(resume_data, jd_skills)
+    if(is_PDF):
+        folder_path = r"C:\Users\aashutosh kumar\OneDrive\Pictures\INFORMATION-TECHNOLOGY"
+        resumes = preprocess_resumes_from_folder(folder_path, jd_skills)
+    else:
+        resumes = preprocess_resumes(resume_data, jd_skills)
     
     resume_texts = resumes['text'].tolist()
     
@@ -79,7 +84,7 @@ if __name__ == "__main__":
     job_description = "Looking for a Data Scientist with skills: Python, Machine Learning, SQL. Minimum 3 years of experience required."
 
     # Run the pipeline
-    top_candidates, jd_details = ai_agent_pipeline(data, job_description, top_n=1)
+    top_candidates, jd_details = ai_agent_pipeline(data, job_description, top_n=1, is_PDF=True)
 
     # Display top candidates and generate explanation
     for idx, (candidate, score) in enumerate(top_candidates, start=1):
