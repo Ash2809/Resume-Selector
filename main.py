@@ -20,52 +20,61 @@ def ai_agent_pipeline(resume_data, job_description, top_n=1):
     scores = calculate_scores(resume_embeddings, jd_embedding, resumes, jd_details)
     
     top_candidates = recommend_top_candidates(resumes, scores, top_n=top_n)
-    return top_candidates
+    return top_candidates, jd_details
+
+def generate_explanation(candidate, job_description, jd_details):
+    """
+    Generates an explanation of why a candidate is the best match for the job.
+    """
+    matched_skills = set(candidate['skills']) & set(jd_details['skills'])
+    unmatched_skills = set(jd_details['skills']) - set(candidate['skills'])
+    
+    explanation = f"### Why this candidate is the best match for the job:\n\n"
+    
+    explanation += f"1. **Skills Match**: This candidate has the following skills that match the job description:\n"
+    explanation += f"    - Matched Skills: {', '.join(matched_skills)}\n"
+    if unmatched_skills:
+        explanation += f"    - Unmatched Skills: {', '.join(unmatched_skills)}\n\n"
+    
+    experience_diff = candidate['experience'] - jd_details['experience']
+    explanation += f"2. **Experience**: The candidate has {candidate['experience']} years of experience.\n"
+    if candidate['experience'] >= jd_details['experience']:
+        explanation += f"    - This exceeds the minimum required experience of {jd_details['experience']} years.\n\n"
+    else:
+        explanation += f"    - The candidate has {abs(experience_diff)} years less experience than required.\n\n"
+    
+    explanation += f"3. **Overall Match Score**: This candidate's match score is {candidate['score']:.2f}, indicating a strong alignment with the job description.\n"
+    
+    return explanation
 
 if __name__ == "__main__":
-    data = pd.read_csv(r"C:\Projects\Resume-Selector\data\UpdatedResumeDataSet.csv")
+    data = pd.DataFrame({
+        "Category": ["Data Science", "Data Science", "Data Science", "Data Science"],
+        "Resume": [
+            "Skills Python, Machine Learning, SQL. 5 years experience.",
+            "Skills Python, R, Deep Learning. 3 years experience.",
+            "Skills Tableau, SQL, AI. 2 years experience.",
+            "Skills SAP HANA, Python. 1 year experience."
+        ]
+    })
 
-    job_description = """
-        **Job Title:** Machine Learning Engineer  
-        **Location:** [Location] (Remote options available)  
-        **Job Type:** Full-Time
+    job_description = "Looking for a Data Scientist with skills: Python, Machine Learning, SQL. Minimum 3 years of experience required."
 
-        **About Us:**  
-        [Company Name] is a cutting-edge technology company focused on leveraging data and advanced algorithms to solve real-world problems. We are seeking a talented and motivated Machine Learning Engineer to join our team and help us build innovative solutions that scale. This is a great opportunity to work in a dynamic, collaborative environment where you can grow your skills and make a real impact.
+    # Run the pipeline
+    top_candidates, jd_details = ai_agent_pipeline(data, job_description, top_n=1)
 
-        **Responsibilities:**  
-        - Design, develop, and deploy machine learning models and algorithms to solve complex business problems.
-        - Collaborate with data scientists, software engineers, and other stakeholders to integrate machine learning models into production systems.
-        - Conduct research to improve the performance and scalability of existing models.
-        - Continuously monitor and fine-tune deployed models to ensure optimal performance.
-        - Work with large datasets, preprocess, clean, and explore data to extract valuable insights.
-        - Stay up to date with the latest advancements in machine learning and artificial intelligence.
-
-        **Requirements:**  
-        - Bachelor’s or Master’s degree in Computer Science, Engineering, Mathematics, or a related field (or equivalent experience).
-        - Proven experience building and deploying machine learning models in a production environment.
-        - Strong programming skills in Python, Java, C++, or similar languages.
-        - Solid understanding of machine learning algorithms (e.g., regression, classification, clustering, neural networks, reinforcement learning).
-        - Experience with machine learning frameworks such as TensorFlow, Keras, PyTorch, or scikit-learn.
-        - Familiarity with data processing libraries such as NumPy, pandas, and tools for big data processing (e.g., Hadoop, Spark).
-        - Strong problem-solving skills and ability to work independently or in a team.
-        - Excellent communication skills and ability to explain technical concepts to non-technical stakeholders.
-
-        **Nice to Have:**  
-        - Experience with cloud platforms (AWS, GCP, Azure).
-        - Knowledge of deep learning and NLP techniques.
-        - Experience with containerization and orchestration (e.g., Docker, Kubernetes).
-        - Familiarity with version control (e.g., Git).
-
-        **Benefits:**  
-        - Competitive salary and bonus structure
-        - Health, dental, and vision insurance
-        - Paid time off and holidays
-        - Professional development opportunities
-        - Flexible work hours and remote work options
-        - Collaborative and innovative work environment"""
-
-    top_candidates = ai_agent_pipeline(data, job_description, top_n=2)
-
+    # Display top candidates and generate explanation
     for idx, (candidate, score) in enumerate(top_candidates, start=1):
         print(f"Rank {idx}:\nResume: {candidate['text']}\nSkills: {candidate['skills']}\nExperience: {candidate['experience']} years\nScore: {score:.2f}\n")
+
+    # Extract the top candidate and score
+    top_candidate, top_score = top_candidates[0]  # Extract both candidate and score
+    print(jd_details)
+
+    # Attach the score to the candidate dictionary for explanation
+    top_candidate['score'] = top_score
+
+    # Generate and print explanation
+    explanation = generate_explanation(candidate=top_candidate, job_description=job_description, jd_details=jd_details)
+    print(explanation)
+

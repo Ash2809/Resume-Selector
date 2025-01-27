@@ -1,14 +1,13 @@
-from src.skill_extraction import extract_skills_from_job_description2
+from skill_extraction import extract_skills_from_job_description2
 import re
 
 def parse_job_description(job_description):
-    """
-    Extracts required skills and experience from the job description.
-    """
+
     jd_skills = extract_skills_from_job_description2(job_description)
     print(jd_skills)
-    experience_pattern = r"(\d+)\s*(?:years|yrs)\s*experience"
-    experience = int(re.findall(experience_pattern, job_description)[0]) if re.search(experience_pattern, job_description) else 0
+    experience_pattern = r"(\d+)\s*(?:years|yrs)?\s*(?:experience|exp)?"
+    match = re.search(experience_pattern, job_description, re.IGNORECASE)
+    experience = int(match.group(1)) if match else 0
     return {
         "text": job_description,
         "skills": jd_skills,
@@ -17,45 +16,63 @@ def parse_job_description(job_description):
 
 if __name__ == "__main__":
     jd = """
-    **Job Title:** Machine Learning Engineer  
-    **Location:** [Location] (Remote options available)  
-    **Job Type:** Full-Time
+        Job Title: Mid-Level IT Engineer
+    Location: [Specify Location]
+    Employment Type: Full-Time
+    Experience Level: 3-5 years
 
-    **About Us:**  
-    [Company Name] is a cutting-edge technology company focused on leveraging data and advanced algorithms to solve real-world problems. We are seeking a talented and motivated Machine Learning Engineer to join our team and help us build innovative solutions that scale. This is a great opportunity to work in a dynamic, collaborative environment where you can grow your skills and make a real impact.
+    Job Summary:
+    We are seeking a skilled and motivated Mid-Level IT Engineer to join our dynamic team. The ideal candidate will play a key role in maintaining and improving our IT infrastructure, ensuring optimal system performance, and contributing to the development and deployment of innovative solutions. You will work closely with cross-functional teams to support both internal and external technology needs.
 
-    **Responsibilities:**  
-    - Design, develop, and deploy machine learning models and algorithms to solve complex business problems.
-    - Collaborate with data scientists, software engineers, and other stakeholders to integrate machine learning models into production systems.
-    - Conduct research to improve the performance and scalability of existing models.
-    - Continuously monitor and fine-tune deployed models to ensure optimal performance.
-    - Work with large datasets, preprocess, clean, and explore data to extract valuable insights.
-    - Stay up to date with the latest advancements in machine learning and artificial intelligence.
+    Key Responsibilities:
+    System Administration:
 
-    **Requirements:**  
-    - Bachelor’s or Master’s degree in Computer Science, Engineering, Mathematics, or a related field (or equivalent experience).
-    - Proven experience building and deploying machine learning models in a production environment.
-    - Strong programming skills in Python, Java, C++, or similar languages.
-    - Solid understanding of machine learning algorithms (e.g., regression, classification, clustering, neural networks, reinforcement learning).
-    - Experience with machine learning frameworks such as TensorFlow, Keras, PyTorch, or scikit-learn.
-    - Familiarity with data processing libraries such as NumPy, pandas, and tools for big data processing (e.g., Hadoop, Spark).
-    - Strong problem-solving skills and ability to work independently or in a team.
-    - Excellent communication skills and ability to explain technical concepts to non-technical stakeholders.
+    Install, configure, and maintain operating systems, hardware, and software.
+    Manage virtualized environments using tools like VMware or Hyper-V.
+    Monitor system performance and ensure system availability and reliability.
+    Network Management:
 
-    **Nice to Have:**  
-    - Experience with cloud platforms (AWS, GCP, Azure).
-    - Knowledge of deep learning and NLP techniques.
-    - Experience with containerization and orchestration (e.g., Docker, Kubernetes).
-    - Familiarity with version control (e.g., Git).
+    Configure, monitor, and troubleshoot network devices (e.g., routers, switches, firewalls).
+    Ensure network security and compliance with best practices.
+    Support VPN, WAN/LAN configurations, and cloud networking solutions.
+    IT Support:
 
-    **Benefits:**  
-    - Competitive salary and bonus structure
-    - Health, dental, and vision insurance
-    - Paid time off and holidays
-    - Professional development opportunities
-    - Flexible work hours and remote work options
-    - Collaborative and innovative work environment"""
+    Provide Level 2 and Level 3 technical support to resolve escalated issues.
+    Collaborate with helpdesk and IT support teams to resolve complex problems.
+    Project Management:
+
+    Participate in IT infrastructure upgrades, migrations, and other projects.
+    Assist in planning, scheduling, and implementing IT projects.
+    Security and Compliance:
+
+    Monitor systems for security vulnerabilities and implement solutions.
+    Ensure adherence to organizational IT policies and industry compliance standards.
+    Documentation and Reporting:
+
+    Maintain accurate records of systems, configurations, and procedures.
+    Prepare reports on IT system performance and resource utilization.
+    Required Skills and Qualifications:
+    Education: Bachelor’s degree in Computer Science, Information Technology, or related field.
+    Experience: 3-5 years of hands-on experience in IT engineering or similar roles.
+    Technical Skills:
+    Proficiency in Windows/Linux operating systems.
+    Experience with cloud platforms such as AWS, Azure, or Google Cloud.
+    Familiarity with scripting languages like Python, Bash, or PowerShell.
+    Strong understanding of networking protocols (e.g., TCP/IP, DNS, DHCP).
+    Knowledge of ITSM tools (e.g., ServiceNow, JIRA).
+    Experience with database management (SQL or NoSQL databases).
+    Soft Skills:
+    Excellent problem-solving and analytical skills.
+    Strong communication and interpersonal skills.
+    Ability to work independently and within a team.
+    Strong organizational and multitasking abilities.
+    Preferred Qualifications:
+    Relevant certifications such as CompTIA Network+, CCNA, AWS Certified Solutions Architect, or Microsoft Azure Administrator.
+    Experience with DevOps practices and tools (e.g., Docker, Kubernetes, Jenkins).
+    Knowledge of ITIL framework and processes.
+    Familiarity with cybersecurity principles and tools.
+"""
 
     res = parse_job_description(jd)
-    print(res)
+    print(res["experience"])
 
