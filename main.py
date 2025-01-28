@@ -8,20 +8,6 @@ from src.PDF_parser import preprocess_resumes_from_folder
 
 model = SentenceTransformer('all-mpnet-base-v2') 
 
-# def ai_agent_pipeline(resume_data, job_description, top_n=1):
-#     jd_details = parse_job_description(job_description)
-#     jd_skills = jd_details["skills"]
-    
-#     resumes = preprocess_resumes(resume_data, jd_skills)
-    
-#     resume_texts = resumes['text'].tolist()
-#     resume_embeddings = model.encode(resume_texts, convert_to_tensor=True)
-#     jd_embedding = model.encode([jd_details["text"]], convert_to_tensor=True)
-    
-#     scores = calculate_scores(resume_embeddings, jd_embedding, resumes, jd_details)
-    
-#     top_candidates = recommend_top_candidates(resumes, scores, top_n=top_n)
-#     return top_candidates, jd_details
 
 def ai_agent_pipeline(resume_data, job_description, top_n, is_PDF):
     jd_details = parse_job_description(job_description)
@@ -83,21 +69,15 @@ if __name__ == "__main__":
 
     job_description = "Looking for a Data Scientist with skills: Python, Machine Learning, SQL. Minimum 3 years of experience required."
 
-    # Run the pipeline
-    top_candidates, jd_details = ai_agent_pipeline(data, job_description, top_n=1, is_PDF=True)
+    top_candidates, jd_details = ai_agent_pipeline(data, job_description, top_n=1, is_PDF=False)
 
-    # Display top candidates and generate explanation
     for idx, (candidate, score) in enumerate(top_candidates, start=1):
         print(f"Rank {idx}:\nResume: {candidate['text']}\nSkills: {candidate['skills']}\nExperience: {candidate['experience']} years\nScore: {score:.2f}\n")
 
-    # Extract the top candidate and score
-    top_candidate, top_score = top_candidates[0]  # Extract both candidate and score
+    top_candidate, top_score = top_candidates[0]  
     print(jd_details)
 
-    # Attach the score to the candidate dictionary for explanation
     top_candidate['score'] = top_score
-
-    # Generate and print explanation
     explanation = generate_explanation(candidate=top_candidate, job_description=job_description, jd_details=jd_details)
     print(explanation)
 
