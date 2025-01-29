@@ -53,6 +53,9 @@ The system accepts two types of inputs: However the user need not upload the dat
   - Adjusts scores based on additional factors like:
     - Skills overlap.
     - Experience difference (e.g., penalizes resumes with less experience than required).
+    - The weighted score is calculated by combining the cosine similarity, experience match, and skill match:
+    - weighted_score = score.item() + 0.2 * experience_match + 0.5 * skills_match
+
   - Outputs a score for each resume.
 
 ### **6. Candidate Ranking and Recommendation**
@@ -94,7 +97,7 @@ The Streamlit app provides an interactive user interface (UI) to:
 - **Model**: `all-mpnet-base-v2` from `sentence-transformers`.
 - **Purpose**: Converts textual data into dense numerical vectors that capture semantic meaning.
 
-### **2. Cosine Similarity**
+### **2. Cosine Similarity & weighted scoring**
 - **Purpose**: Measures similarity between the job description embedding and each resume embedding.
 - **Formula**:
   \[ \text{Cosine Similarity} = \frac{A \cdot B}{||A|| \times ||B||} \]
