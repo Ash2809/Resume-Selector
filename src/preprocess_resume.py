@@ -72,25 +72,18 @@ import pandas as pd
 def preprocess_resumes(resume_data, jd_skills):
     def extract_details(text):
         try:
-            # Experience pattern
             experience_pattern = r"(\d+)\s*(?:year[s]?|yr[s]?)?\s*(?:and\s*(\d+)\s*month[s]?)?"
             
-            # Skills pattern
             skills_pattern = r"(?:skills|technologies|expertise|proficient in|Computer Skills)[:\s]+([\w\s,]+)"
-            
-            # Debugging aid
             print(f"Processing text: {text[:10]}...")
 
-            # Extract skills
             skills_match = re.search(skills_pattern, text, re.IGNORECASE)
             if skills_match:
                 extracted_skills = skills_match.group(1)
-                # Normalize skills and match with JD skills
                 skills = {skill.strip().lower() for skill in re.split(r"[,\s]+", extracted_skills) if skill.strip().lower() in jd_skills}
             else:
                 skills = set()
 
-            # Extract experience
             experience = 0
             experience_match = re.search(experience_pattern, text, re.IGNORECASE)
             if experience_match:
@@ -100,7 +93,6 @@ def preprocess_resumes(resume_data, jd_skills):
             if(experience > 20):
                 experience = 0
 
-            # Return extracted data
             return {
                 "text": text,
                 "skills": skills,
@@ -119,7 +111,6 @@ if __name__ == "__main__":
                  'machine learning', 'r', 'data analysis', 'ethical hacking', 
                  'statistical modeling', 'go', 'nist', 'transformers', 'MS-PowerPoint']
     
-    # Load dataset
     # data = pd.read_csv(r"C:\Projects\Resume-Selector\data\UpdatedResumeDataSet.csv")
     data = pd.DataFrame({
         "Category": ["Data Science", "Data Science", "Data Science", "Data Science"],
@@ -134,6 +125,5 @@ if __name__ == "__main__":
     if 'Resume' not in data.columns:
         raise KeyError("The column 'Resume' does not exist in the dataset. Please check your input file.")
     
-    # Process resumes
     res = preprocess_resumes(data, jd_skills)
     print(res)

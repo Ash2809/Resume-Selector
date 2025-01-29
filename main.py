@@ -5,6 +5,7 @@ from src.preprocess_resume import preprocess_resumes
 from src.recc import recommend_top_candidates
 from src.score import calculate_scores
 from src.PDF_parser import preprocess_resumes_from_folder
+import streamlit as st
 
 model = SentenceTransformer('all-mpnet-base-v2') 
 
@@ -55,17 +56,17 @@ def generate_explanation(candidate, job_description, jd_details):
     return explanation
 
 if __name__ == "__main__":
-    # data = pd.DataFrame({
-    #     "Category": ["Data Science", "Data Science", "Data Science", "Data Science"],
-    #     "Resume": [
-    #         "Skills Python, Machine Learning, SQL. 5 years experience.",
-    #         "Skills Python, R, Deep Learning. 3 years experience.",
-    #         "Skills Tableau, SQL, AI. 2 years experience.",
-    #         "Skills SAP HANA, Python. 1 year experience."
-    #     ]
-    # })
+    data = pd.DataFrame({
+        "Category": ["Data Science", "Data Science", "Data Science", "Data Science"],
+        "Resume": [
+            "Skills Python, Machine Learning, SQL. 5 years experience.",
+            "Skills Python, R, Deep Learning. 3 years experience.",
+            "Skills Tableau, SQL, AI. 2 years experience.",
+            "Skills SAP HANA, Python. 1 year experience."
+        ]
+    })
 
-    data = pd.read_csv(r"C:\Projects\Resume-Selector\data\UpdatedResumeDataSet.csv")
+    # data = pd.read_csv(r"C:\Projects\Resume-Selector\data\UpdatedResumeDataSet.csv")
 
     job_description = "Looking for a Data Scientist with skills: Python, Machine Learning, SQL. Minimum 3 years of experience required."
 

@@ -1,67 +1,41 @@
 import streamlit as st
+from main import ai_agent_pipeline, generate_explanation  
 import pandas as pd
-from sentence_transformers import SentenceTransformer
-from src.parse_jd import parse_job_description
-from src.preprocess_resume import preprocess_resumes
-from src.recc import recommend_top_candidates
-from src.score import calculate_scores
-from main import ai_agent_pipeline
 
-model = SentenceTransformer('all-mpnet-base-v2') 
+st.title("AI Resume Screening System")
+st.write("Upload resumes and input a job description to find the best-matched candidates.")
 
-def generate_explanation(candidate, job_description, jd_details):
-    """
-    Generates an explanation of why a candidate is the best match for the job.
-    """
-    matched_skills = set(candidate['skills']) & set(jd_details['skills'])
-    unmatched_skills = set(jd_details['skills']) - set(candidate['skills'])
-    
-    explanation = f"### Why this candidate is the best match for the job:\n\n"
-    
-    explanation += f"1. **Skills Match**: This candidate has the following skills that match the job description:\n"
-    explanation += f"    - Matched Skills: {', '.join(matched_skills)}\n"
-    if unmatched_skills:
-        explanation += f"    - Unmatched Skills: {', '.join(unmatched_skills)}\n\n"
-    
-    experience_diff = candidate['experience'] - jd_details['experience']
-    explanation += f"2. **Experience**: The candidate has {candidate['experience']} years of experience.\n"
-    if candidate['experience'] >= jd_details['experience']:
-        explanation += f"    - This exceeds the minimum required experience of {jd_details['experience']} years.\n\n"
+st.subheader("Job Description")
+job_description = st.text_area("Enter the job description", "")
+
+data = pd.DataFrame({
+        "Category": ["Data Science", "Data Science", "Data Science", "Data Science"],
+        "Resume": [
+            "Skills Python, Machine Learning, SQL. 5 years experience.",
+            "Skills Python, R, Deep Learning. 3 years experience.",
+            "Skills Tableau, SQL, AI. 2 years experience.",
+            "Skills SAP HANA, Python. 1 year experience."
+        ]
+    })
+
+if st.button("Find Candidates"):
+    if not job_description:
+        st.error("Please enter a job description.")
     else:
-        explanation += f"    - The candidate has {abs(experience_diff)} years less experience than required.\n\n"
-    
-    explanation += f"3. **Overall Match Score**: This candidate's match score is {candidate['score']:.2f}, indicating a strong alignment with the job description.\n"
-    
-    return explanation
-
-def main():
-    st.title("AI Resume Selector")
-    st.write("Enter a Job Description to match the top resumes.")
-
-    job_description = st.text_area("Job Description", height=150, placeholder="Enter the job description here...")
-
-    if st.button("Match Resumes"):
-        if job_description:
-            data = pd.read_csv(r"C:\Projects\Resume-Selector\data\UpdatedResumeDataSet.csv")
+        try:
+            top_candidates, jd_details = ai_agent_pipeline(data, job_description, top_n=1, is_PDF=False)
             
-            top_candidates = ai_agent_pipeline(data, job_description, top_n=2)
+            # Display the results
+            st.subheader("Top Candidates")
+            for idx, (candidate, score) in enumerate(top_candidates, start=1):
+                print(f"Rank {idx}:\nResume: {candidate['text']}\nSkills: {candidate['skills']}\nExperience: {candidate['experience']} years\nScore: {score:.2f}\n")
+
+            top_candidate, top_score = top_candidates[0]  
+            print(jd_details)
+
+            top_candidate['score'] = top_score
+            explanation = generate_explanation(candidate=top_candidate, job_description=job_description, jd_details=jd_details)
+            st.write(explanation)
             
-            if top_candidates:
-                st.write("### Top Matching Resumes")
-                for idx, (candidate, score) in enumerate(top_candidates, start=1):
-                    st.write(f"**Rank {idx}:**")
-                    st.write(f"**Resume:** {candidate['text']}")
-                    st.write(f"**Skills:** {candidate['skills']}")
-                    st.write(f"**Experience:** {candidate['experience']} years")
-                    st.write(f"**Score:** {score:.2f}")
-                    st.write("---")
-
-                explanation = generate_explanation(top_candidates, job_description, jd_details)
-                st.write(explanation)
-            else:
-                st.write("No matching candidates found.")
-        else:
-            st.warning("Please enter a job description to match resumes.")
-
-if __name__ == "__main__":
-    main()
+        except Exception as e:
+            st.error(f"Error processing resumes: {e}")
