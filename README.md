@@ -20,10 +20,10 @@ The system accepts two types of inputs: However the user need not upload the dat
 ### **2. Job Description Parsing**
 - **Module**: `parse_jd`
 - **Process**:
-  - Extracts key components from the job description, such as:
+  - Extracts key components from the job description and returns as a dict leverages regular expression to do so
     - **Skills**: Identified keywords and phrases (e.g., "Python," "SQL").
     - **Experience**: Minimum required years of experience.
-    - **Job Details**: A cleaned and tokenized version of the job description text.
+    - **Job Details**: whole description
   
 ### **3. Resume Preprocessing**
 - **Modules**:
@@ -33,7 +33,6 @@ The system accepts two types of inputs: However the user need not upload the dat
   - For CSV files:
     - Reads data using `pandas`.
     - Extracts relevant columns such as "Skills" and "Experience."
-    - Cleans and standardizes text.
   - For PDFs:
     - Uses NLP tools to extract text from each PDF file.
     - Matches extracted text against job description skills using regex.
@@ -100,7 +99,8 @@ The Streamlit app provides an interactive user interface (UI) to:
 ### **2. Cosine Similarity & weighted scoring**
 - **Purpose**: Measures similarity between the job description embedding and each resume embedding.
 - **Formula**:
-  \[ \text{Cosine Similarity} = \frac{A \cdot B}{||A|| \times ||B||} \]
+  Cosine Similarity = (A ⋅ B) / (||A|| × ||B||)
+  weighted_score = score.item() + 0.2 * experience_match + 0.5 * skills_match
 
 ### **3. Skills Matching**
 - **Technique**: Extracts skills from resumes and job descriptions using tokenization and keyword matching.
@@ -172,11 +172,11 @@ The modular design ensures flexibility:
 ### **Local Setup**
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/AI-Resume-Screening-System.git
+   git clone https://github.com/Ash2809/Resume-Selector.git
    ```
 2. Navigate to the project folder:
    ```bash
-   cd AI-Resume-Screening-System
+   cd Resume-Selector
    ```
 3. Install dependencies:
    ```bash
@@ -184,7 +184,7 @@ The modular design ensures flexibility:
    ```
 4. Run the Streamlit app:
    ```bash
-   streamlit run app.py
+   streamlit run agent_app.py
    ```
 
 
